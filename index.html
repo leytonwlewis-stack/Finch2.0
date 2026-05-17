@@ -252,10 +252,41 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:21px;heigh
 .info-box.gold{background:var(--gold-soft);color:var(--gold);}
 .info-box.green{background:var(--green-soft);color:var(--green);}
 .info-box.purple{background:var(--purple-soft);color:var(--purple);}
+
+/* DARK MODE */
+body.dark-mode{--navy:#1A2F4E;--navy2:#0D1B2E;--gray0:#0F1923;--gray1:#1A2535;--gray2:#243044;--gray3:#4A5E78;--gray4:#8A9BB0;--gray5:#B0BEC5;--text1:#E8EDF5;--text2:#9AAFC4;--text3:#5A7490;--white:#162032;--card-shadow:0 2px 8px rgba(0,0,0,0.3),0 0 0 0.5px rgba(0,0,0,0.2);--blue-soft:#0D2545;--blue-mid:#1A3A6B;--green-soft:#0A2A20;--green-mid:#1A5040;--purple-soft:#1A1030;--gold-soft:#1E1500;--red-soft:#2A0F0F;--amber-soft:#1E1200;--teal-soft:#061A20;}
+body.dark-mode #nav{background:rgba(15,25,35,0.96);border-top-color:var(--gray2);}
+
+/* SPLASH */
+#splash{position:fixed;inset:0;z-index:999;background:var(--navy);display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity 0.5s ease;}
+#splash.hidden{opacity:0;pointer-events:none;}
+#splash-bird{font-size:52px;margin-bottom:16px;animation:splashBird 1s ease infinite alternate;}
+@keyframes splashBird{from{transform:translateY(-6px);}to{transform:translateY(6px);}}
+#splash-title{font-size:42px;font-weight:700;color:#fff;letter-spacing:-2px;}
+#splash-version{font-size:18px;font-weight:300;color:rgba(255,255,255,0.45);letter-spacing:2px;margin-top:4px;}
+#splash-sub{font-size:13px;color:rgba(255,255,255,0.3);margin-top:60px;font-weight:500;letter-spacing:0.3px;}
+
+/* TOGGLE SWITCH */
+.toggle-switch{width:44px;height:26px;background:var(--gray2);border-radius:13px;position:relative;cursor:pointer;transition:background 0.2s;border:none;display:inline-block;flex-shrink:0;vertical-align:middle;}
+.toggle-switch.on{background:var(--blue);}
+.toggle-switch::after{content:'';position:absolute;width:20px;height:20px;background:#fff;border-radius:50%;top:3px;left:3px;transition:transform 0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.2);}
+.toggle-switch.on::after{transform:translateX(18px);}
+
+/* QUICK LOG BTN */
+#quick-log-btn{position:fixed;bottom:calc(72px + var(--sab));right:20px;width:52px;height:52px;border-radius:50%;background:var(--blue);color:#fff;border:none;box-shadow:0 4px 16px rgba(30,94,204,0.4);cursor:pointer;font-size:28px;display:flex;align-items:center;justify-content:center;z-index:150;transition:all 0.15s;}
+#quick-log-btn:active{transform:scale(0.93);}
 </style>
 </head>
 <body>
 <div id="app">
+  <div id="splash">
+    <div id="splash-inner">
+      <div id="splash-bird">🐦</div>
+      <div id="splash-title">Finch</div>
+      <div id="splash-version">3.0</div>
+      <div id="splash-sub">Created by Leyton Lewis</div>
+    </div>
+  </div>
   <div id="screen">
 
     <!-- ═══════════ HOME ═══════════ -->
@@ -287,6 +318,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:21px;heigh
         <div class="stat-card"><div class="stat-lbl">Annual Gross</div><div class="stat-val" id="qs-gross">—</div><div class="stat-sub">est. this year</div></div>
       </div>
 
+      <div id="health-score-section"></div>
       <div class="section-head"><span class="section-title">Top Categories</span><span class="section-action" onclick="goPage('spend',document.getElementById('nav-spend'))">See all</span></div>
       <div id="home-bcat-list"></div>
 
@@ -306,8 +338,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:21px;heigh
       <div id="bcat-list"></div>
       <div class="section-head"><span class="section-title">Bills & Subscriptions</span><span class="section-action" onclick="openModal('modal-bill')">+ Add</span></div>
       <div class="card" id="bills-list"></div>
+      <div class="section-head"><span class="section-title">Loans</span><span class="section-action" onclick="openModal('modal-add-loan')">+ Add</span></div>
+      <div id="loans-list"></div>
       <div class="section-head"><span class="section-title">Expense History</span></div>
       <div class="card" id="expense-history-list"></div>
+      <div class="section-head"><span class="section-title">Monthly History</span></div>
+      <div class="card card-pad" id="spend-history-section" style="margin-bottom:10px;"></div>
       <div style="height:6px;"></div>
     </div>
 
@@ -377,42 +413,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:21px;heigh
         <div class="stat-card"><div class="stat-lbl">Interest Earned</div><div class="stat-val" id="sv-interest" style="color:var(--green);">$0</div><div class="stat-sub">auto-calculated</div></div>
       </div>
 
-      <!-- Main HYSA -->
-      <div class="section-head"><span class="section-title">Main HYSA</span><span class="section-action" onclick="openUpdateModal('hysa-main')">Update</span></div>
-      <div class="hysa-card">
-        <div class="hysa-header">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-            <div>
-              <div style="font-size:15px;font-weight:700;color:var(--text1);">Main HYSA</div>
-              <div style="font-size:11px;color:var(--text3);margin-top:2px;font-weight:500;">High-yield savings · 1% APY</div>
-            </div>
-            <div style="text-align:right;">
-              <div style="font-size:19px;font-weight:700;color:var(--text1);letter-spacing:-0.5px;" id="hysa-main-val">$0</div>
-              <div class="hysa-interest-badge" style="margin-top:4px;">🌱 1% APY</div>
-            </div>
-          </div>
-        </div>
-        <div class="hysa-body" id="hysa-main-body"></div>
-      </div>
-
-      <!-- Summer Savers -->
-      <div class="section-head"><span class="section-title">Summer Savers</span></div>
-      <div class="ss-card">
-        <div class="ss-header">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
-            <div>
-              <div style="font-size:15px;font-weight:700;color:var(--text1);">Summer Savers</div>
-              <div style="font-size:11px;color:var(--text3);margin-top:2px;font-weight:500;">6% APY · Matures after 1 calendar year</div>
-            </div>
-            <div style="text-align:right;">
-              <div style="font-size:19px;font-weight:700;color:var(--gold);letter-spacing:-0.5px;" id="ss-val">$0</div>
-              <div class="ss-badge" style="margin-top:4px;">⚡ 6% APY</div>
-            </div>
-          </div>
-          <div id="ss-status-bar"></div>
-        </div>
-        <div class="ss-body" id="ss-body"></div>
-      </div>
+      <!-- Savings Accounts (dynamic) -->
+      <div class="section-head"><span class="section-title">Accounts</span><span class="section-action" onclick="openModal('modal-add-savings')">+ Add Account</span></div>
+      <div id="savings-accounts-list"></div>
 
       <!-- Goals -->
       <div class="section-head"><span class="section-title">Savings Goals</span><span class="section-action" onclick="openModal('modal-goal')">+ New</span></div>
@@ -430,7 +433,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:21px;heigh
 
     <!-- ═══════════ SETTINGS ═══════════ -->
     <div class="page" id="page-settings">
-      <div class="section-head" style="padding-top:calc(var(--sat) + 10px);"><span class="section-title">Your Setup</span></div>
+      <div class="section-head" style="padding-top:calc(var(--sat) + 10px);"><span class="section-title">Appearance</span></div>
+      <div class="set-group" id="appearance-settings"></div>
+      <div class="section-head"><span class="section-title">Your Setup</span></div>
       <div class="set-group">
         <div class="set-row" onclick="editSetting('k401pct')">
           <div class="set-left"><div class="set-icon" style="background:var(--blue-soft);">📈</div><div><div class="set-lbl">Roth 401K Contribution</div><div class="set-sub">% deducted from gross pay</div></div></div>
@@ -465,6 +470,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:21px;heigh
         </div>
       </div>
 
+      <div class="section-head"><span class="section-title">Loans</span></div>
+      <div class="set-group" id="loans-settings"></div>
+
       <div class="section-head"><span class="section-title">Update All Balances</span></div>
       <div class="card card-pad" id="balance-update-card"></div>
 
@@ -479,6 +487,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:21px;heigh
     </div>
 
   </div><!-- end screen -->
+
+  <button id="quick-log-btn" onclick="openQuickLog()">
+    <span style="font-size:22px;line-height:1;">+</span>
+  </button>
 
   <!-- NAV -->
   <nav id="nav">
@@ -596,6 +608,76 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:21px;heigh
   </div>
 </div>
 
+<!-- ADD SAVINGS ACCOUNT -->
+<div class="modal-overlay" id="modal-add-savings">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add Savings Account</div>
+    <div class="input-group"><label class="input-lbl">Account Name</label><input type="text" class="fin-plain" id="sa-name" placeholder="e.g. Ally HYSA, Savings Account"></div>
+    <div class="input-group"><label class="input-lbl">APY %</label><div class="input-row"><input type="number" class="fin-input" id="sa-apy" placeholder="4.5" style="padding-left:13px;"></div></div>
+    <div class="input-group"><label class="input-lbl">Starting Balance (optional)</label><div class="input-row"><span class="input-pfx">$</span><input type="number" class="fin-input" id="sa-balance" placeholder="0"></div></div>
+    <button class="btn-primary" onclick="addSavingsAccount()" style="margin-bottom:10px;">Add Account</button>
+    <button class="btn-secondary" onclick="closeModal('modal-add-savings')">Cancel</button>
+  </div>
+</div>
+
+<!-- ADD LOAN -->
+<div class="modal-overlay" id="modal-add-loan">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add Loan</div>
+    <div class="input-group"><label class="input-lbl">Loan Name</label><input type="text" class="fin-plain" id="ln-name" placeholder="e.g. Car Loan, Student Loan"></div>
+    <div class="input-group"><label class="input-lbl">Original Balance</label><div class="input-row"><span class="input-pfx">$</span><input type="number" class="fin-input" id="ln-orig" placeholder="0"></div></div>
+    <div class="input-group"><label class="input-lbl">Current Balance (optional)</label><div class="input-row"><span class="input-pfx">$</span><input type="number" class="fin-input" id="ln-curr" placeholder="Same as original"></div></div>
+    <div class="input-group"><label class="input-lbl">Monthly Payment</label><div class="input-row"><span class="input-pfx">$</span><input type="number" class="fin-input" id="ln-pay" placeholder="0"></div></div>
+    <div class="input-group"><label class="input-lbl">Interest Rate % (optional)</label><div class="input-row"><input type="number" class="fin-input" id="ln-rate" placeholder="0" style="padding-left:13px;"></div></div>
+    <button class="btn-primary" onclick="addLoan()" style="margin-bottom:10px;">Add Loan</button>
+    <button class="btn-secondary" onclick="closeModal('modal-add-loan')">Cancel</button>
+  </div>
+</div>
+
+<!-- QUICK LOG -->
+<div class="modal-overlay" id="modal-quicklog">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Quick Log ⚡</div>
+    <div class="input-group"><label class="input-lbl">Category</label><select class="fin-plain" id="ql-cat"></select></div>
+    <div class="input-group"><label class="input-lbl">Amount</label><div class="input-row"><span class="input-pfx">$</span><input type="number" class="fin-input" id="ql-amt" placeholder="0.00"></div></div>
+    <button class="btn-primary" onclick="commitQuickLog()" style="margin-bottom:10px;">Add Expense</button>
+    <button class="btn-secondary" onclick="closeModal('modal-quicklog')">Cancel</button>
+  </div>
+</div>
+
+<!-- EDIT CATEGORY -->
+<div class="modal-overlay" id="modal-edit-cat">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Edit Category</div>
+    <div class="input-group">
+      <label class="input-lbl">Icon</label>
+      <div class="emoji-pick" id="ecat-pick">
+        <span class="ecat-opt eopt" data-e="🍔" onclick="pickEditCatEmoji(this,'🍔')">🍔</span><span class="ecat-opt eopt" data-e="🍕" onclick="pickEditCatEmoji(this,'🍕')">🍕</span><span class="ecat-opt eopt" data-e="🍜" onclick="pickEditCatEmoji(this,'🍜')">🍜</span><span class="ecat-opt eopt" data-e="🥗" onclick="pickEditCatEmoji(this,'🥗')">🥗</span><span class="ecat-opt eopt" data-e="🛒" onclick="pickEditCatEmoji(this,'🛒')">🛒</span><span class="ecat-opt eopt" data-e="⛽" onclick="pickEditCatEmoji(this,'⛽')">⛽</span><span class="ecat-opt eopt" data-e="🚌" onclick="pickEditCatEmoji(this,'🚌')">🚌</span><span class="ecat-opt eopt" data-e="🏠" onclick="pickEditCatEmoji(this,'🏠')">🏠</span><span class="ecat-opt eopt" data-e="💡" onclick="pickEditCatEmoji(this,'💡')">💡</span><span class="ecat-opt eopt" data-e="📱" onclick="pickEditCatEmoji(this,'📱')">📱</span><span class="ecat-opt eopt" data-e="💊" onclick="pickEditCatEmoji(this,'💊')">💊</span><span class="ecat-opt eopt" data-e="🎮" onclick="pickEditCatEmoji(this,'🎮')">🎮</span><span class="ecat-opt eopt" data-e="🎬" onclick="pickEditCatEmoji(this,'🎬')">🎬</span><span class="ecat-opt eopt" data-e="🛍️" onclick="pickEditCatEmoji(this,'🛍️')">🛍️</span><span class="ecat-opt eopt" data-e="👗" onclick="pickEditCatEmoji(this,'👗')">👗</span><span class="ecat-opt eopt" data-e="💇" onclick="pickEditCatEmoji(this,'💇')">💇</span><span class="ecat-opt eopt" data-e="💪" onclick="pickEditCatEmoji(this,'💪')">💪</span><span class="ecat-opt eopt" data-e="✈️" onclick="pickEditCatEmoji(this,'✈️')">✈️</span><span class="ecat-opt eopt" data-e="🎁" onclick="pickEditCatEmoji(this,'🎁')">🎁</span><span class="ecat-opt eopt" data-e="💍" onclick="pickEditCatEmoji(this,'💍')">💍</span><span class="ecat-opt eopt" data-e="🎓" onclick="pickEditCatEmoji(this,'🎓')">🎓</span><span class="ecat-opt eopt" data-e="🐾" onclick="pickEditCatEmoji(this,'🐾')">🐾</span><span class="ecat-opt eopt" data-e="🐕" onclick="pickEditCatEmoji(this,'🐕')">🐕</span><span class="ecat-opt eopt" data-e="🍺" onclick="pickEditCatEmoji(this,'🍺')">🍺</span><span class="ecat-opt eopt" data-e="☕" onclick="pickEditCatEmoji(this,'☕')">☕</span><span class="ecat-opt eopt" data-e="🎵" onclick="pickEditCatEmoji(this,'🎵')">🎵</span><span class="ecat-opt eopt" data-e="🏋️" onclick="pickEditCatEmoji(this,'🏋️')">🏋️</span>
+      </div>
+    </div>
+    <div class="input-group"><label class="input-lbl">Category Name</label><input type="text" class="fin-plain" id="ecat-name" placeholder="e.g. Dining Out"></div>
+    <button class="btn-primary" onclick="saveEditCat()" style="margin-bottom:10px;">Save</button>
+    <button class="btn-secondary" onclick="closeModal('modal-edit-cat')">Cancel</button>
+  </div>
+</div>
+
+<!-- ONBOARDING -->
+<div class="modal-overlay" id="modal-onboard">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="ob-dots" style="display:flex;justify-content:center;gap:8px;margin-bottom:22px;"></div>
+    <div id="ob-content"></div>
+    <button class="btn-primary" id="ob-next" onclick="obNext()" style="margin-bottom:10px;">Get Started</button>
+    <div style="text-align:center;margin-top:4px;">
+      <span onclick="obSkip()" style="font-size:13px;color:var(--text3);font-weight:600;cursor:pointer;">Skip setup</span>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -649,12 +731,30 @@ function defaultState() {
     },
     goals: [],
     nwHistory: [],
+    savingsAccounts: [],
+    loans: [],
+    darkMode: false,
+    lastResetMonth: '',
+    spendHistory: [],
+    onboardingDone: false,
+    milestonesHit: [],
   };
 }
 
 function loadState(){
-  try{const d=localStorage.getItem(KEY);return d?JSON.parse(d):defaultState();}
-  catch(e){return defaultState();}
+  try{
+    const d=localStorage.getItem(KEY);
+    if(!d)return defaultState();
+    const s=JSON.parse(d);
+    if(!s.savingsAccounts)s.savingsAccounts=[];
+    if(!s.loans)s.loans=[];
+    if(s.darkMode===undefined)s.darkMode=false;
+    if(!s.lastResetMonth)s.lastResetMonth='';
+    if(!s.spendHistory)s.spendHistory=[];
+    if(s.onboardingDone===undefined)s.onboardingDone=false;
+    if(!s.milestonesHit)s.milestonesHit=[];
+    return s;
+  }catch(e){return defaultState();}
 }
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 
@@ -674,8 +774,9 @@ function getPeriod(){
 }
 
 function calcNW(){
+  const savAccSum=(S.savingsAccounts||[]).reduce((a,b)=>a+b.balance,0);
   return S.roth401k.value + S.rothIra.value + S.brokerage.value + S.crypto.value
-       + S.hysaMain.value + S.summerSavers.value + S.cash;
+       + S.hysaMain.value + S.summerSavers.value + S.cash + savAccSum;
 }
 
 function calcTotalInvest(){
@@ -709,6 +810,17 @@ function applyMonthlyInterest(){
     hm.lastInterestDate = cur;
     persist();
   }
+
+  // Dynamic savings accounts
+  (S.savingsAccounts||[]).forEach(acc=>{
+    if(acc.balance>0 && acc.lastInterestDate!==cur){
+      const monthlyRate=(acc.apy||0)/12;
+      const interest=Math.round(acc.balance*monthlyRate*100)/100;
+      acc.balance+=interest;
+      acc.interestEarned=(acc.interestEarned||0)+interest;
+      acc.lastInterestDate=cur;
+    }
+  });
 
   // Check Summer Savers maturity (1 calendar year from start)
   if(ss.startDate){
@@ -782,6 +894,9 @@ function renderHome(){
     const gross=(latest.takehome+Math.round(latest.takehome*p/(1-p)))*26;
     document.getElementById('qs-gross').textContent=fmtK(gross);
   }
+
+  // Health score
+  renderHealthScore();
 
   // Top 3 categories
   const el=document.getElementById('home-bcat-list');
@@ -857,8 +972,10 @@ function renderSpend(){
     </div>`;
   });
 
-  renderBillsInto('bills-list', 99);
+  renderBillsInto('bills-list', 99, true);
   renderExpenseHistory();
+  renderLoans();
+  renderSpendHistory();
 }
 
 function renderExpenseHistory(){
@@ -891,7 +1008,7 @@ function deleteExpense(i){
   showToast('Expense removed');
 }
 
-function renderBillsInto(elId, max){
+function renderBillsInto(elId, max, showDelete){
   const el=document.getElementById(elId);
   if(!S.bills.length){el.innerHTML='<div class="empty">No bills added yet</div>';return;}
   const todayD=new Date().getDate();
@@ -903,8 +1020,17 @@ function renderBillsInto(elId, max){
   el.innerHTML=sorted.map(b=>{
     const dl=b.day>=todayD?b.day-todayD:(30-todayD+b.day);
     const urg=dl<=3?'var(--red)':dl<=7?'var(--amber)':'var(--green)';
-    return `<div class="card-row"><div class="row-left"><div class="bill-dot" style="background:${urg};margin-left:4px;"></div><div><div class="row-label">${b.name}</div><div class="row-sub" style="color:${urg}">${dl===0?'Due today':'Due in '+dl+' day'+(dl!==1?'s':'')}</div></div></div><div class="row-right"><div class="row-value">${fmt(b.amt)}</div><div class="row-meta">${b.freq}</div></div></div>`;
+    const del=showDelete?`<button class="btn-sm-ghost red" onclick="deleteBill(${b.id})" style="padding:5px 10px;">✕</button>`:'';
+    return `<div class="card-row"><div class="row-left"><div class="bill-dot" style="background:${urg};margin-left:4px;"></div><div><div class="row-label">${b.name}</div><div class="row-sub" style="color:${urg}">${dl===0?'Due today':'Due in '+dl+' day'+(dl!==1?'s':'')}</div></div></div><div class="row-right" style="display:flex;align-items:center;gap:8px;"><div style="text-align:right;"><div class="row-value">${fmt(b.amt)}</div><div class="row-meta">${b.freq}</div></div>${del}</div></div>`;
   }).join('');
+}
+
+function deleteBill(id){
+  S.bills=S.bills.filter(b=>b.id!==id);
+  persist();
+  renderSpend();
+  renderBillsInto('home-bills',4);
+  showToast('Bill removed');
 }
 
 // ════════════════════════════
@@ -972,31 +1098,56 @@ function renderNWChart(){
 //  SAVE
 // ════════════════════════════
 function renderSave(){
-  const ss=S.summerSavers, hm=S.hysaMain;
-  const totalSaved=hm.value+ss.value;
-  const totalInterest=(hm.interestEarned||0)+(ss.interestEarned||0);
-  document.getElementById('sv-total').textContent=fmt(totalSaved);
+  const savAccs=S.savingsAccounts||[];
+  const totalBalance=savAccs.reduce((a,b)=>a+b.balance,0)+S.hysaMain.value+S.summerSavers.value;
+  const totalInterest=savAccs.reduce((a,b)=>a+(b.interestEarned||0),0)+(S.hysaMain.interestEarned||0)+(S.summerSavers.interestEarned||0);
+  document.getElementById('sv-total').textContent=fmt(totalBalance);
   document.getElementById('sv-interest').textContent=fmtD(totalInterest);
 
-  // Main HYSA
-  document.getElementById('hysa-main-val').textContent=fmt(hm.value);
-  const hysaMonthly=hm.value*(hm.apy/12);
-  document.getElementById('hysa-main-body').innerHTML=`
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-size:13px;font-weight:600;color:var(--text2);">Monthly interest earned</span>
-      <span style="font-size:13px;font-weight:700;color:var(--green);">+${fmtD(hysaMonthly)}</span>
-    </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-      <span style="font-size:13px;font-weight:600;color:var(--text2);">Total interest earned</span>
-      <span style="font-size:13px;font-weight:700;color:var(--green);">+${fmtD(hm.interestEarned||0)}</span>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="btn-sm-ghost green" onclick="openUpdateModal('hysa-main')">Update balance</button>
+  // Dynamic savings accounts list
+  const el=document.getElementById('savings-accounts-list');
+  if(!savAccs.length){
+    el.innerHTML=`<div class="card card-pad" style="margin-bottom:10px;text-align:center;">
+      <div style="padding:14px 0 18px;">
+        <div style="font-size:30px;margin-bottom:8px;">🏦</div>
+        <div style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:4px;">No savings accounts yet</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">Tap 'Add Account' to get started</div>
+        <button class="btn-primary" onclick="openModal('modal-add-savings')">+ Add Account</button>
+      </div>
     </div>`;
-
-  // Summer Savers
-  document.getElementById('ss-val').textContent=fmt(ss.value);
-  renderSummerSavers();
+  } else {
+    el.innerHTML=savAccs.map(acc=>{
+      const monthly=acc.balance*(acc.apy/12);
+      const apyStr=+(acc.apy*100).toFixed(2);
+      return `<div class="hysa-card">
+        <div class="hysa-header">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div>
+              <div style="font-size:15px;font-weight:700;color:var(--text1);">${acc.name}</div>
+              <div class="hysa-interest-badge" style="margin-top:5px;">🌱 ${apyStr}% APY</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:22px;font-weight:700;color:var(--text1);letter-spacing:-0.5px;">${fmt(acc.balance)}</div>
+            </div>
+          </div>
+        </div>
+        <div class="hysa-body">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span style="font-size:13px;font-weight:600;color:var(--text2);">Monthly interest</span>
+            <span style="font-size:13px;font-weight:700;color:var(--green);">+${fmtD(monthly)}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <span style="font-size:13px;font-weight:600;color:var(--text2);">Total interest earned</span>
+            <span style="font-size:13px;font-weight:700;color:var(--green);">+${fmtD(acc.interestEarned||0)}</span>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn-sm-ghost green" onclick="openSavingsUpdate(${acc.id})">Update Balance</button>
+            <button class="btn-sm-ghost red" onclick="deleteSavingsAccount(${acc.id})">🗑 Delete</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
 
   // Goals
   renderGoalsList();
@@ -1181,6 +1332,390 @@ function calcWhatIf(){
 }
 
 // ════════════════════════════
+//  SAVINGS ACCOUNTS
+// ════════════════════════════
+function addSavingsAccount(){
+  const name=document.getElementById('sa-name').value.trim();
+  const apyInput=parseFloat(document.getElementById('sa-apy').value);
+  const balance=parseFloat(document.getElementById('sa-balance').value)||0;
+  if(!name){showToast('Enter account name');return;}
+  if(isNaN(apyInput)||apyInput<0){showToast('Enter valid APY');return;}
+  S.savingsAccounts.push({id:Date.now(),name,apy:apyInput/100,balance,interestEarned:0,lastInterestDate:null});
+  persist();
+  document.getElementById('sa-name').value='';
+  document.getElementById('sa-apy').value='';
+  document.getElementById('sa-balance').value='';
+  closeModal('modal-add-savings');
+  renderSave();
+  showToast('Account added!');
+}
+
+function openSavingsUpdate(id){
+  const acc=(S.savingsAccounts||[]).find(a=>a.id===id);
+  if(!acc)return;
+  _updTarget={type:'savings-account',id};
+  document.getElementById('upd-title').textContent='Update '+acc.name;
+  document.getElementById('upd-lbl').textContent='Current balance';
+  const inp=document.getElementById('upd-val');
+  const pfx=inp.closest('.input-row').querySelector('.input-pfx');
+  inp.type='number'; if(pfx)pfx.style.display='';
+  inp.value=acc.balance;
+  document.getElementById('upd-info').style.display='none';
+  document.getElementById('upd-extra').innerHTML='';
+  openModal('modal-update');
+}
+
+function deleteSavingsAccount(id){
+  const acc=(S.savingsAccounts||[]).find(a=>a.id===id);
+  if(!acc||!confirm('Delete "'+acc.name+'"? This cannot be undone.'))return;
+  S.savingsAccounts=S.savingsAccounts.filter(a=>a.id!==id);
+  persist();renderSave();showToast('Account deleted');
+}
+
+function migrateIfNeeded(){
+  if(!S.savingsAccounts)S.savingsAccounts=[];
+  if(!S.loans)S.loans=[];
+  if(S.savingsAccounts.length===0&&(S.hysaMain.value>0||S.summerSavers.value>0)){
+    if(S.hysaMain.value>0){
+      S.savingsAccounts.push({id:Date.now(),name:'Main HYSA',apy:S.hysaMain.apy||0.01,balance:S.hysaMain.value,interestEarned:S.hysaMain.interestEarned||0,lastInterestDate:S.hysaMain.lastInterestDate||null});
+      S.hysaMain.value=0; S.hysaMain.interestEarned=0;
+    }
+    if(S.summerSavers.value>0){
+      S.savingsAccounts.push({id:Date.now()+1,name:'Summer Savers',apy:S.summerSavers.apy||0.06,balance:S.summerSavers.value,interestEarned:S.summerSavers.interestEarned||0,lastInterestDate:S.summerSavers.lastInterestDate||null});
+      S.summerSavers.value=0; S.summerSavers.interestEarned=0;
+    }
+    persist();
+  }
+}
+
+// ════════════════════════════
+//  LOANS
+// ════════════════════════════
+function renderLoans(){
+  const el=document.getElementById('loans-list');
+  if(!el)return;
+  const loans=S.loans||[];
+  if(!loans.length){el.innerHTML='<div class="empty">No loans added</div>';return;}
+  el.innerHTML=loans.map(l=>{
+    const orig=l.originalBalance||0;
+    const curr=l.currentBalance||0;
+    const pct=orig>0?Math.min(Math.round(((orig-curr)/orig)*100),100):0;
+    const months=l.monthlyPayment>0?Math.ceil(curr/l.monthlyPayment):null;
+    const rateStr=l.interestRate?`<span class="chip chip-blue" style="font-size:10px;">${l.interestRate}% APR</span>`:'';
+    return `<div class="bitem">
+      <div class="bitem-top">
+        <div class="bitem-left">
+          <div><div class="row-label">${l.name}</div>${rateStr?`<div style="margin-top:4px;">${rateStr}</div>`:''}</div>
+        </div>
+        <div class="row-right">
+          <div class="row-value">${fmt(curr)}</div>
+          <div class="row-meta">${fmt(l.monthlyPayment)}/mo</div>
+        </div>
+      </div>
+      <div class="prog-track" style="margin-bottom:5px;"><div class="prog-fill prog-blue" style="width:${pct}%"></div></div>
+      <div class="prog-foot">
+        <span class="prog-txt">${pct}% paid off</span>
+        <span class="prog-txt">Original: ${fmt(orig)}</span>
+      </div>
+      ${months!==null?`<div style="margin-top:6px;font-size:11px;color:var(--text3);font-weight:500;">est. ${months} month${months!==1?'s':''} remaining</div>`:''}
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button class="btn-sm-ghost" onclick="openLoanUpdate(${l.id})">Update Balance</button>
+        <button class="btn-sm-ghost red" onclick="deleteLoan(${l.id})">🗑 Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addLoan(){
+  const name=document.getElementById('ln-name').value.trim();
+  const orig=parseFloat(document.getElementById('ln-orig').value)||0;
+  const currRaw=document.getElementById('ln-curr').value;
+  const curr=currRaw?parseFloat(currRaw):orig;
+  const pay=parseFloat(document.getElementById('ln-pay').value)||0;
+  const rate=parseFloat(document.getElementById('ln-rate').value)||0;
+  if(!name){showToast('Enter loan name');return;}
+  if(!orig){showToast('Enter original balance');return;}
+  if(!S.loans)S.loans=[];
+  S.loans.push({id:Date.now(),name,originalBalance:orig,currentBalance:curr,monthlyPayment:pay,interestRate:rate});
+  persist();
+  ['ln-name','ln-orig','ln-curr','ln-pay','ln-rate'].forEach(id=>{document.getElementById(id).value='';});
+  closeModal('modal-add-loan');
+  renderSpend();
+  showToast('Loan added!');
+}
+
+function deleteLoan(id){
+  if(!confirm('Delete this loan?'))return;
+  S.loans=(S.loans||[]).filter(l=>l.id!==id);
+  persist();renderSpend();renderSettings();showToast('Loan removed');
+}
+
+function openLoanUpdate(id){
+  const loan=(S.loans||[]).find(l=>l.id===id);
+  if(!loan)return;
+  _updTarget={type:'loan',id};
+  document.getElementById('upd-title').textContent='Update '+loan.name;
+  document.getElementById('upd-lbl').textContent='Current balance';
+  const inp=document.getElementById('upd-val');
+  const pfx=inp.closest('.input-row').querySelector('.input-pfx');
+  inp.type='number'; if(pfx)pfx.style.display='';
+  inp.value=loan.currentBalance;
+  document.getElementById('upd-info').style.display='none';
+  document.getElementById('upd-extra').innerHTML='';
+  openModal('modal-update');
+}
+
+// ════════════════════════════
+//  DARK MODE
+// ════════════════════════════
+function toggleDarkMode(){
+  S.darkMode=!S.darkMode;
+  persist();
+  applyDarkMode();
+  renderSettings();
+}
+function applyDarkMode(){
+  document.body.classList.toggle('dark-mode',!!S.darkMode);
+}
+
+// ════════════════════════════
+//  MONTHLY RESET
+// ════════════════════════════
+function checkMonthlyReset(){
+  const cur=yyyymm();
+  if(S.lastResetMonth===cur)return;
+  if(!S.lastResetMonth){S.lastResetMonth=cur;persist();return;}
+  if(!S.spendHistory)S.spendHistory=[];
+  S.spendHistory.push({
+    month:S.lastResetMonth,
+    total:S.cats.reduce((a,b)=>a+b.spent,0),
+    cats:S.cats.map(c=>({name:c.name,emoji:c.emoji,spent:c.spent,limit:c.limit}))
+  });
+  S.cats.forEach(c=>c.spent=0);
+  S.lastResetMonth=cur;
+  persist();
+  showToast('📅 New month — spending reset!');
+}
+
+// ════════════════════════════
+//  FINANCIAL HEALTH SCORE
+// ════════════════════════════
+function calcHealthScore(){
+  let score=0;
+  const cats=S.cats;
+  const overBudget=cats.filter(c=>c.spent>c.limit);
+  const underBudget=cats.filter(c=>c.spent<=c.limit);
+  const curPeriod=getPeriod();
+  const hasPaycheck=S.paychecks.length>0&&S.paychecks[0].period===curPeriod;
+  const nw=calcNW();
+  const hasSavings=(S.savingsAccounts||[]).some(a=>a.balance>0);
+  const nwTrending=S.nwHistory.length>=2&&S.nwHistory[S.nwHistory.length-1].val>S.nwHistory[S.nwHistory.length-2].val;
+  if(overBudget.length===0&&cats.length>0)score+=25;
+  else if(underBudget.length>cats.length/2)score+=15;
+  if(hasPaycheck)score+=20;
+  if(nw>0)score+=10;
+  if(nwTrending)score+=15;
+  if(hasSavings)score+=15;
+  if(S.streak>=3)score+=10;
+  score=Math.min(score,100);
+  const insights=[];
+  if(overBudget.length>0)insights.push('Over budget in '+overBudget[0].name);
+  else if(nwTrending)insights.push('Net worth is growing — keep it up 📈');
+  if(!hasPaycheck)insights.push('Log your paycheck to track this period');
+  else if(!hasSavings)insights.push('Add to savings to build your safety net');
+  let grade,color;
+  if(score>=90){grade='Excellent';color='var(--green)';}
+  else if(score>=70){grade='Good';color='var(--blue)';}
+  else if(score>=50){grade='Fair';color='var(--amber)';}
+  else{grade='Needs Work';color='var(--red)';}
+  return{score,grade,color,insights};
+}
+
+function renderHealthScore(){
+  const el=document.getElementById('health-score-section');
+  if(!el)return;
+  const{score,grade,color,insights}=calcHealthScore();
+  const circumference=213.6;
+  const dash=(score/100*circumference).toFixed(1);
+  el.innerHTML=`<div class="card" style="margin-bottom:10px;">
+    <div style="padding:16px;display:flex;align-items:center;gap:16px;">
+      <div style="position:relative;flex-shrink:0;">
+        <svg width="80" height="80" viewBox="0 0 80 80">
+          <circle cx="40" cy="40" r="34" fill="none" stroke="var(--gray1)" stroke-width="6"/>
+          <circle cx="40" cy="40" r="34" fill="none" stroke="${color}" stroke-width="6"
+            stroke-dasharray="${dash} ${circumference}" stroke-linecap="round" transform="rotate(-90 40 40)"/>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:18px;font-weight:700;color:var(--text1);">${score}</span>
+        </div>
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Financial Health</div>
+        <div style="font-size:20px;font-weight:700;letter-spacing:-0.5px;color:${color};">${grade}</div>
+        <div style="margin-top:7px;display:flex;flex-wrap:wrap;gap:5px;">
+          ${insights.slice(0,2).map(i=>`<div style="font-size:11px;color:var(--text2);background:var(--gray0);border-radius:8px;padding:4px 8px;font-weight:500;">${i}</div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ════════════════════════════
+//  SPEND HISTORY CHART
+// ════════════════════════════
+function renderSpendHistory(){
+  const el=document.getElementById('spend-history-section');
+  if(!el)return;
+  const hist=(S.spendHistory||[]).slice(-6);
+  if(hist.length<2){
+    el.innerHTML='<div class="empty" style="padding:20px 16px;">Spend history will appear after your first monthly reset.</div>';
+    return;
+  }
+  el.innerHTML='<div class="chart-wrap" style="height:140px;"><canvas id="spend-history-chart"></canvas></div>';
+  const ctx=document.getElementById('spend-history-chart').getContext('2d');
+  if(window._spendChart)window._spendChart.destroy();
+  const labels=hist.map(h=>{const[y,m]=h.month.split('-');return new Date(parseInt(y),parseInt(m)-1,1).toLocaleString('default',{month:'short'});});
+  window._spendChart=new Chart(ctx,{type:'bar',
+    data:{labels,datasets:[{data:hist.map(h=>h.total),backgroundColor:'rgba(30,94,204,0.8)',borderRadius:4,borderSkipped:false}]},
+    options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.raw)}}},
+      scales:{x:{grid:{display:false},ticks:{color:'#9AA5B4',font:{size:10}}},
+        y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#9AA5B4',font:{size:10},callback:v=>fmtK(v)}}},
+      animation:{duration:450}}});
+}
+
+// ════════════════════════════
+//  NET WORTH MILESTONES
+// ════════════════════════════
+function checkMilestones(){
+  const nw=calcNW();
+  const milestones=[1000,5000,10000,25000,50000,100000,250000,500000,1000000];
+  if(!S.milestonesHit)S.milestonesHit=[];
+  milestones.forEach(m=>{
+    if(nw>=m&&!S.milestonesHit.includes(m)){
+      S.milestonesHit.push(m);
+      persist();
+      const labels={1000:'First $1K 🎉',5000:'$5K Club 💪',10000:'Five figures! 🔥',25000:'$25K milestone 🚀',50000:'Halfway to $100K ⭐',100000:"$100K! You're killing it 💎",250000:'Quarter million 👑',500000:'Half a million 🏆',1000000:'Millionaire! 🎰'};
+      setTimeout(()=>showToast(labels[m]||'Milestone hit: '+fmt(m)),400);
+    }
+  });
+}
+
+// ════════════════════════════
+//  EDIT CATEGORY
+// ════════════════════════════
+let _editCatIdx=null,_editCatEmoji='';
+function openEditCat(i){
+  _editCatIdx=i;
+  const c=S.cats[i];
+  document.getElementById('ecat-name').value=c.name;
+  _editCatEmoji=c.emoji;
+  document.querySelectorAll('.ecat-opt').forEach(el=>{el.classList.toggle('sel',el.dataset.e===c.emoji);});
+  openModal('modal-edit-cat');
+}
+function pickEditCatEmoji(el,e){
+  document.querySelectorAll('.ecat-opt').forEach(x=>x.classList.remove('sel'));
+  el.classList.add('sel');
+  _editCatEmoji=e;
+}
+function saveEditCat(){
+  const name=document.getElementById('ecat-name').value.trim();
+  if(!name){showToast('Enter a name');return;}
+  S.cats[_editCatIdx].name=name;
+  S.cats[_editCatIdx].emoji=_editCatEmoji;
+  persist();closeModal('modal-edit-cat');renderSettings();renderSpend();showToast('Category updated!');
+}
+
+// ════════════════════════════
+//  QUICK LOG
+// ════════════════════════════
+function openQuickLog(){
+  const sel=document.getElementById('ql-cat');
+  sel.innerHTML=S.cats.map((c,i)=>`<option value="${i}">${c.emoji} ${c.name}</option>`).join('');
+  document.getElementById('ql-amt').value='';
+  openModal('modal-quicklog');
+}
+function commitQuickLog(){
+  const catIdx=parseInt(document.getElementById('ql-cat').value);
+  const amt=parseFloat(document.getElementById('ql-amt').value);
+  if(!amt||amt<=0){showToast('Enter an amount');return;}
+  S.cats[catIdx].spent=(S.cats[catIdx].spent||0)+amt;
+  S.expenses.push({catIdx,amt,note:'',date:todayStr(),period:getPeriod()});
+  persist();
+  closeModal('modal-quicklog');
+  if(document.querySelector('.page.active')?.id==='page-spend')renderSpend();
+  renderHome();
+  checkMilestones();
+  showToast('⚡ Logged '+fmt(amt));
+}
+
+// ════════════════════════════
+//  ONBOARDING
+// ════════════════════════════
+let _obStep=1;
+function showOnboarding(){
+  if(S.onboardingDone)return;
+  if(S.paychecks.length>0){S.onboardingDone=true;persist();return;}
+  _obStep=1;
+  renderObStep();
+  document.getElementById('modal-onboard').classList.add('open');
+}
+function renderObStep(){
+  const dots=document.getElementById('ob-dots');
+  if(dots)dots.innerHTML=[1,2,3].map(i=>`<div style="width:8px;height:8px;border-radius:50%;background:${_obStep===i?'var(--blue)':'var(--gray2)'};transition:background 0.2s;"></div>`).join('');
+  const content=document.getElementById('ob-content');
+  const nextBtn=document.getElementById('ob-next');
+  if(_obStep===1){
+    if(content)content.innerHTML=`<div style="text-align:center;padding:10px 0 22px;">
+      <div style="font-size:56px;margin-bottom:14px;">🐦</div>
+      <div style="font-size:22px;font-weight:700;color:var(--text1);letter-spacing:-0.5px;margin-bottom:10px;">Welcome to Finch</div>
+      <div style="font-size:14px;color:var(--text2);line-height:1.6;">Your personal finance companion.<br>Let's get you set up in 60 seconds.</div>
+    </div>`;
+    if(nextBtn)nextBtn.textContent='Get Started';
+  } else if(_obStep===2){
+    if(content)content.innerHTML=`<div>
+      <div class="info-box">These help us calculate your contributions automatically.</div>
+      <div class="input-group"><label class="input-lbl">Take-home per paycheck</label><div class="input-row"><span class="input-pfx">$</span><input type="number" class="fin-input" id="ob-takehome" placeholder="2,450"></div></div>
+      <div class="input-group"><label class="input-lbl">Roth 401K contribution %</label><div class="input-row"><input type="number" class="fin-input" id="ob-401k" placeholder="15" style="padding-left:13px;"></div></div>
+    </div>`;
+    if(nextBtn)nextBtn.textContent='Next →';
+  } else if(_obStep===3){
+    if(content)content.innerHTML=`<div>
+      <div style="font-size:16px;font-weight:700;color:var(--text1);margin-bottom:14px;">Add your first savings account</div>
+      <div class="input-group"><label class="input-lbl">Account Name</label><input type="text" class="fin-plain" id="ob-savename" placeholder="e.g. Ally HYSA"></div>
+      <div class="input-group"><label class="input-lbl">APY %</label><div class="input-row"><input type="number" class="fin-input" id="ob-apy" placeholder="4.5" style="padding-left:13px;"></div></div>
+      <div class="input-group"><label class="input-lbl">Starting Balance (optional)</label><div class="input-row"><span class="input-pfx">$</span><input type="number" class="fin-input" id="ob-bal" placeholder="0"></div></div>
+    </div>`;
+    if(nextBtn)nextBtn.textContent='Finish ✓';
+  }
+}
+function obNext(){
+  if(_obStep===2){
+    const k=parseFloat(document.getElementById('ob-401k')?.value);
+    if(k&&k>0&&k<=80)S.k401pct=k;
+    persist();
+  }
+  if(_obStep===3){
+    const name=document.getElementById('ob-savename')?.value.trim();
+    const apy=parseFloat(document.getElementById('ob-apy')?.value)||0;
+    const bal=parseFloat(document.getElementById('ob-bal')?.value)||0;
+    if(name&&apy>0){
+      if(!S.savingsAccounts)S.savingsAccounts=[];
+      S.savingsAccounts.push({id:Date.now(),name,apy:apy/100,balance:bal,interestEarned:0,lastInterestDate:null});
+      persist();
+    }
+    obSkip();return;
+  }
+  _obStep++;
+  renderObStep();
+}
+function obSkip(){
+  S.onboardingDone=true;persist();
+  document.getElementById('modal-onboard').classList.remove('open');
+  renderHome();renderSave();
+  showToast('Welcome to Finch! 🐦');
+}
+
+// ════════════════════════════
 //  PAYCHECK
 // ════════════════════════════
 function calcBreakdown(){
@@ -1229,6 +1764,7 @@ function logPaycheck(){
 
   S.nwHistory.push({date:todayStr(),val:calcNW()});
   persist();
+  checkMilestones();
   document.getElementById('pay-input').value='';
   document.getElementById('pay-breakdown').style.display='none';
   closeModal('modal-pay');
@@ -1255,6 +1791,12 @@ function logExpense(){
 //  SETTINGS
 // ════════════════════════════
 function renderSettings(){
+  const appEl=document.getElementById('appearance-settings');
+  if(appEl){appEl.innerHTML=`<div class="set-row" onclick="toggleDarkMode()">
+    <div class="set-left"><div class="set-icon" style="background:var(--navy2);font-size:15px;">🌙</div><div><div class="set-lbl">Dark Mode</div><div class="set-sub">Toggle dark theme</div></div></div>
+    <div class="set-right"><button class="toggle-switch${S.darkMode?' on':''}" onclick="event.stopPropagation();toggleDarkMode()"></button></div>
+  </div>`;}
+
   document.getElementById('sv-401k-pct').textContent=S.k401pct+'%';
   document.getElementById('sv-ira-amt').textContent=fmtD(S.iraPerCheck);
   document.getElementById('sv-cash').textContent=fmt(S.cash);
@@ -1272,8 +1814,21 @@ function renderSettings(){
   bl.innerHTML=S.cats.map((c,i)=>`
     <div class="set-row" onclick="editBudget(${i})">
       <div class="set-left"><div class="set-icon" style="background:${c.bg};font-size:14px;">${c.emoji}</div><div><div class="set-lbl">${c.name}</div><div class="set-sub">${fmt(c.limit)}/check · ${fmt(c.limit*2)}/month</div></div></div>
-      <div class="set-right"><span class="set-val">${fmt(c.limit*2)}/mo</span><span class="chevron">›</span></div>
+      <div class="set-right" style="gap:8px;">
+        <button class="btn-sm-ghost" onclick="event.stopPropagation();openEditCat(${i})" style="padding:5px 10px;font-size:13px;">✏️</button>
+        <span class="set-val">${fmt(c.limit*2)}/mo</span><span class="chevron">›</span>
+      </div>
     </div>`).join('');
+
+  const loanEl=document.getElementById('loans-settings');
+  if(loanEl){
+    const loans=S.loans||[];
+    loanEl.innerHTML=loans.length?loans.map(l=>`
+      <div class="set-row">
+        <div class="set-left"><div class="set-icon" style="background:var(--blue-soft);">💳</div><div><div class="set-lbl">${l.name}</div><div class="set-sub">${fmt(l.currentBalance)} remaining · ${fmt(l.monthlyPayment)}/mo</div></div></div>
+        <div class="set-right"><button class="btn-sm-ghost" onclick="openLoanUpdate(${l.id})" style="font-size:11px;padding:6px 11px;">Edit</button></div>
+      </div>`).join(''):'<div style="padding:14px 16px;font-size:13px;color:var(--text3);font-weight:600;">No loans added</div>';
+  }
 }
 
 function editSetting(key){
@@ -1385,10 +1940,14 @@ function commitUpdate(){
     'hysa-main':()=>{S.hysaMain.value=n;S.hysaMain.lastUpdated=todayStr();},
     'ss-edit': ()=>{S.summerSavers.value=n;},
     'goal':    ()=>{const g=S.goals[index];g.saved=Math.min(g.saved+n,g.target);if(g.saved>=g.target)setTimeout(()=>showToast('🎉 Goal reached!'),100);},
+    'savings-account':()=>{const acc=(S.savingsAccounts||[]).find(a=>a.id===_updTarget.id);if(acc)acc.balance=n;},
+    'loan':    ()=>{const loan=(S.loans||[]).find(l=>l.id===_updTarget.id);if(loan)loan.currentBalance=n;},
   };
   if(accMap[type])accMap[type]();
   S.nwHistory.push({date:todayStr(),val:calcNW()});
-  persist();closeModal('modal-update');
+  persist();
+  checkMilestones();
+  closeModal('modal-update');
   if(type==='goal'){renderGoalsList();}
   else{const page=document.querySelector('.page.active');if(page){const id=page.id.replace('page-','');renderPage(id);}}
   showToast('✅ Updated');
@@ -1412,7 +1971,7 @@ function saveBill(){
   const freq=document.getElementById('bm-freq').value;
   if(!name){showToast('Enter bill name');return;}
   S.bills.push({id:Date.now(),name,amt,day,freq});
-  persist();closeModal('modal-bill');renderSpend();showToast('Bill added!');
+  persist();closeModal('modal-bill');renderSpend();renderBillsInto('home-bills',4);showToast('Bill added!');
 }
 
 let _selEmoji='🎯';
@@ -1453,8 +2012,15 @@ function showToast(msg){
 // ════════════════════════════
 //  BOOT
 // ════════════════════════════
+migrateIfNeeded();
+applyDarkMode();
 applyMonthlyInterest();
+checkMonthlyReset();
 renderHome();
+setTimeout(()=>{
+  document.getElementById('splash').classList.add('hidden');
+  showOnboarding();
+},1800);
 </script>
 </body>
 </html>
